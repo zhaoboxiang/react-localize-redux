@@ -1,4 +1,3 @@
-// @flow
 import { routeError, loadMultipleRoutes } from '../utils/routes';
 import { addTranslation, addTranslationForLanguage, initialize, setActiveLanguage } from 'react-localize-redux';
 import CoreLayout from '../components/CoreLayout';

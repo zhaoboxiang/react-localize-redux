@@ -1,4 +1,3 @@
-// @flow
 import React from 'react';
 import PropTypes from 'prop-types';
 import { applyMiddleware, compose, createStore, combineReducers } from 'redux';
@@ -6,8 +5,11 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { Router, hashHistory } from 'react-router';
 import rootRoute from './routes';
-import { localeReducer } from 'react-localize-redux';
+import { localeReducer, LocalizeContext } from 'react-localize-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
+import { LocalizeProvider } from 'react-localize-redux';
+import CoreLayout from './components/CoreLayout';
+import {Main} from './components/Main';
 
 const ROOT_NODE = document.getElementById('root');
 
@@ -31,23 +33,22 @@ const store = createStore(combineReducers({
 //   );
 // };
 
-class App extends React.Component<any, any> {
-  getChildContext() {
-    return {slice: 'locale'};
-  }
+class App extends React.Component {
 
   render() {
     return (
-      <Provider store={ store }>
-        <Router history={ hashHistory } routes={ rootRoute(store) } />
-      </Provider>
+      <LocalizeProvider>
+        <div>
+          <LocalizeContext.Consumer>
+            {({ dispatch }) => 
+              <Main dispatch={dispatch} />
+            }
+          </LocalizeContext.Consumer>
+        </div>
+      </LocalizeProvider>
     );
   }
 }
-
-App.childContextTypes = {
-  slice:  PropTypes.string
-};
 
 ReactDOM.render(<App />, ROOT_NODE);
 

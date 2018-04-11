@@ -1,16 +1,15 @@
 // @flow
 import React from 'react';
-import { defaultTranslateOptions } from './locale';
-import type { TranslatePlaceholderData, TranslatedLanguage, Translations, Options, LocalizedElement, Language } from './locale';
+import { type Store } from 'redux';
+import { defaultTranslateOptions } from './localize';
+import type { TranslatePlaceholderData, TranslatedLanguage, Translations, Options, LocalizedElement, Language } from './localize';
 
 export const getLocalizedElement = (key: string, translations: TranslatedLanguage, data: TranslatePlaceholderData, activeLanguage: Language, options: Options = defaultTranslateOptions): LocalizedElement => {
   const onMissingTranslation = () => {
     if (options.missingTranslationCallback) {
       options.missingTranslationCallback(key, activeLanguage.code);
     }
-    return options.showMissingTranslationMsg === false  
-      ? ''
-      : templater(options.missingTranslationMsg || '', { key, code: activeLanguage.code });
+    return templater(options.missingTranslationMsg || '', { key, code: activeLanguage.code });
   };
   const localizedString = translations[key] || onMissingTranslation();
   const translatedValue = templater(localizedString, data)
@@ -73,7 +72,7 @@ export const getTranslationsForLanguage = (language: Language, languages: Langua
   }, {});
 };
 
-export const storeDidChange = (store: any, onChange: (prevState: any) => void) => {
+export const storeDidChange = (store: Store<any, any>, onChange: (prevState: any) => void) => {
   let currentState;
 
   function handleChange() {

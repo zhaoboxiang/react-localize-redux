@@ -1,9 +1,8 @@
-import * as actions from 'locale';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import { languages, translations, getActiveLanguage, getTranslationsForActiveLanguage, getTranslationsForSpecificLanguage, translationsEqualSelector, setLanguages, getTranslate, getTranslateSelector, defaultTranslateOptions, options } from 'locale';
+import { languages, translations, getActiveLanguage, getTranslationsForActiveLanguage, getTranslationsForSpecificLanguage, translationsEqualSelector, setLanguages, getTranslate, getTranslateSelector, defaultTranslateOptions, options } from 'localize';
 import { getLocalizedElement } from 'utils';
-import { INITIALIZE, SET_LANGUAGES, SET_ACTIVE_LANGUAGE, ADD_TRANSLATION, ADD_TRANSLATION_FOR_LANGUGE } from 'locale';
+import { INITIALIZE, SET_ACTIVE_LANGUAGE, ADD_TRANSLATION, ADD_TRANSLATION_FOR_LANGUAGE } from 'localize';
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -28,6 +27,8 @@ describe('locale module', () => {
 
   describe('reducer: languages', () => {
     let initialState = [];
+
+
 
     beforeEach(() => {
       initialState = [
@@ -70,106 +71,8 @@ describe('locale module', () => {
           ]);
         }); 
       });
-
-      describe('set with Language[]', () => {
-        it('should set languages and set default language to first language', () => {
-          const action = {
-            type: INITIALIZE,
-            payload: {
-              languages: [
-                { name: 'English', code: 'en' },
-                { name: 'French', code: 'fr' }
-              ]
-            }
-          };
-          const result = languages([], action);
-          expect(result).toEqual([
-            { name: 'English', code: 'en', active: true },
-            { name: 'French', code: 'fr', active: false }
-          ]);
-        });
-  
-        it('should set active language based on defaultLanguage option', () => {
-          const action = {
-            type: INITIALIZE,
-            payload: {
-              languages: [
-                { name: 'English', code: 'en' },
-                { name: 'French', code: 'fr' }
-              ],
-              options: { defaultLanguage: 'fr' }
-            }
-          };
-          const result = languages([], action);
-          expect(result).toEqual([
-            { name: 'English', code: 'en', active: false },
-            { name: 'French', code: 'fr', active: true }
-          ]);
-        }); 
-      });
     });
 
-    describe('SET_LANGUAGES', () => {
-      describe('set with string[]', () => {
-        it('should add new languages with first set to active by default', () => {
-          const action = {
-            type: SET_LANGUAGES,
-            payload: {
-              languages: ['en', 'fr', 'ne']
-            }
-          };
-
-          const result = languages([], action);
-          expect(result).toEqual([
-            { code: 'en', active: true },
-            { code: 'fr', active: false },
-            { code: 'ne', active: false }
-          ]);
-        });
-
-        it('should set active language = to activeIndex passed to setLanguages', () => {
-          const result = languages([], setLanguages(['en', 'fr', 'ne'], 'fr'));
-
-          expect(result).toEqual([
-            { code: 'en', active: false },
-            { code: 'fr', active: true },
-            { code: 'ne', active: false }
-          ]);
-        });
-      });
-
-      describe('set with Language[]', () => {
-        it('should add new languages with first set to active by default', () => {
-          const action = {
-            type: SET_LANGUAGES,
-            payload: {
-              languages: [
-                { name: 'English', code: 'en' },
-                { name: 'French', code: 'fr' }
-              ]
-            }
-          };
-
-          const result = languages([], action);
-          expect(result).toEqual([
-            { name: 'English', code: 'en', active: true },
-            { name: 'French', code: 'fr', active: false }
-          ]);
-        });
-
-        it('should set active language = to activeIndex passed to setLanguages', () => {
-          const result = languages([], setLanguages([
-            { name: 'English', code: 'en' },
-            { name: 'French', code: 'fr' }
-          ], 'fr'));
-
-          expect(result).toEqual([
-            { name: 'English', code: 'en', active: false },
-            { name: 'French', code: 'fr', active: true }
-          ]);
-        });
-      });
-    });
     
     describe('SET_ACTIVE_LANGUAGE', () => {
       it('should set active language', () => {
@@ -318,10 +221,10 @@ describe('locale module', () => {
       });
     });
     
-    describe('ADD_TRANSLATION_FOR_LANGUGE', () => {
+    describe('ADD_TRANSLATION_FOR_LANGUAGE', () => {
       it('should add translation for specific language', () => {
         const action = {
-          type: ADD_TRANSLATION_FOR_LANGUGE,
+          type: ADD_TRANSLATION_FOR_LANGUAGE,
           payload: { 
             language: 'en', 
             translation: { title: 'title', description: 'description' }
@@ -338,7 +241,7 @@ describe('locale module', () => {
 
       it('should add nested translation for specific language', () => {
         const action = {
-          type: ADD_TRANSLATION_FOR_LANGUGE,
+          type: ADD_TRANSLATION_FOR_LANGUAGE,
           payload: { 
             language: 'en', 
             translation: { 
@@ -357,7 +260,7 @@ describe('locale module', () => {
 
       it('should add translation for specific language to existing translation', () => {
         const action = {
-          type: ADD_TRANSLATION_FOR_LANGUGE,
+          type: ADD_TRANSLATION_FOR_LANGUAGE,
           payload: { 
             language: 'en', 
             translation: { title: 'title', description: 'description' }
@@ -378,7 +281,7 @@ describe('locale module', () => {
 
       it('should add translation for specific language and override existing translation', () => {
         const action = {
-          type: ADD_TRANSLATION_FOR_LANGUGE,
+          type: ADD_TRANSLATION_FOR_LANGUAGE,
           payload: { 
             language: 'fr', 
             translation: { title: 'title', description: 'description' }
@@ -605,7 +508,8 @@ describe('locale module', () => {
     });
 
     it('should render inner html if renderInnerHtml option is true', () => {
-      const translate = getTranslate(state);
+      const stateWithOpts = {...state, options: { renderInnerHtml: true }};
+      const translate = getTranslate(stateWithOpts);
       const wrapper = shallow(translate('html'));
 
       expect(wrapper.find('span').exists()).toBe(true);
@@ -658,20 +562,6 @@ describe('locale module', () => {
         const value = result[key];
         expect(value).toBe(results[index]);
       });
-    });
-
-    it('should return empty string when missing translation and showMissingTranslationMsg = false', () => {
-      state.options.showMissingTranslationMsg = false;
-      const translate = getTranslate(state);
-      const result = translate('nothinghere');
-      expect(result).toEqual('');
-    });
-
-    it('should retrun missing translation msg when missing translation and showMissingTranslationMsg = true', () => {
-      state.options.showMissingTranslationMsg = true;
-      const translate = getTranslate(state);
-      const result = translate('nothinghere');
-      expect(result).toEqual('Missing translation key nothinghere for language fr');
     });
 
     it('should retrun custom missingTranslationMsg when missing translation and showMissingTranslationMsg = true', () => {

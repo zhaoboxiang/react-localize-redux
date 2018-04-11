@@ -8,6 +8,7 @@ describe('locale utils', () => {
   const defaultLanguage = { code: 'en' };
 
   describe('getLocalizedElement', () => {
+
     it('should return element with localized string', () => {
       const translations = { test: 'Here is my test' };
       const result = utils.getLocalizedElement('test', translations, null, defaultLanguage);
@@ -16,7 +17,8 @@ describe('locale utils', () => {
 
     it('should return element with HTML from translation rendered', () => {
       const translations = { test: '<h1>Here</h1> is my <strong>test</strong>' };
-      const wrapper = shallow(utils.getLocalizedElement('test', translations, null, defaultLanguage));
+      const options = { renderInnerHtml: true };
+      const wrapper = shallow(utils.getLocalizedElement('test', translations, null, defaultLanguage, options));
       
       expect(wrapper.find('span').exists()).toBe(true);
       expect(wrapper.html()).toEqual(`<span>${translations.test}</span>`);
@@ -27,14 +29,6 @@ describe('locale utils', () => {
       const options = { renderInnerHtml: false };
       const result = utils.getLocalizedElement('test', translations, null, null, options);
       expect(result).toBe(translations.test);
-    });
-
-    it('should return empty string when showMissingTranslationMsg is false', () => {
-      const translations = { test: 'Here is my test' };
-      const key = 'test2';
-      const options = { showMissingTranslationMsg: false };
-      const result = utils.getLocalizedElement(key, translations, null, null, options);
-      expect(result).toEqual('');
     });
 
     it('should return missing translation msg when showMissingTranslationMsg is true', () => {
