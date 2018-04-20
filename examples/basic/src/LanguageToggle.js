@@ -7,7 +7,6 @@ const LanguageToggle = ({languages, activeLanguage, setActiveLanguage}) => {
   const getClass = (languageCode) => {
     return languageCode === activeLanguage.code ? 'active' : ''
   };
-  
 
   return (
     <ul className="selector">

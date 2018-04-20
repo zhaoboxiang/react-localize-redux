@@ -14,14 +14,6 @@ class Main extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
-    // const isUsingReduxFromLocalStorage = window.localStorage.getItem(USING_REDUX_KEY)
-    //   ? window.localStorage.getItem(USING_REDUX_KEY) === 'true'
-    //   : false;
-
-    // this.state = {
-    //   isUsingRedux: isUsingReduxFromLocalStorage
-    // };
-
     this.props.initialize([
       { name: 'English', code: 'en' }, 
       { name: 'French', code: 'fr' }, 

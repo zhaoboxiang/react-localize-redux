@@ -1,5 +1,5 @@
 // @flow
-import type { ComponentType, ElementConfig, Component } from 'react';
+import type { ComponentType, Component } from 'react';
 import type { Selector, SelectorCreator } from 'reselect';
 
 import type { Language as _Language } from './localize';
@@ -87,9 +87,9 @@ declare export function getTranslate(
   state: LocalizeState
 ): TranslateFunction;
 
-declare export function withLocalize<Props, Component: ComponentType<Props>>(
-  WrappedComponent: Component
-): ElementConfig<Component>; 
+declare export function withLocalize<Props: {}>(
+  WrappedComponent: ComponentType<Props>
+): ComponentType<$Diff<Props, { ...LocalizeContextProps }>>;
 
 declare export var LocalizeContext: Context<LocalizeContextProps>;
 

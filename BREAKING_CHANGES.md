@@ -14,5 +14,6 @@
 * test redux version
 * maybe add an isLocalizeInitialized prop? 
 * add default language when missing option (open issue for this)
+* clean up package.json
 
 

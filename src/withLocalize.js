@@ -1,7 +1,7 @@
 import React, { Component, type ComponentType } from 'react';
-import { LocalizeContext, type LocalizeContextProps, type ElementConfig } from './LocalizeContext';
+import { LocalizeContext, type LocalizeContextProps } from './LocalizeContext';
 
-export function withLocalize<Props, Component: ComponentType<LocalizeContextProps>>(WrappedComponent: ComponentType<Props>): ElementConfig<Component> {
+export function withLocalize<Props: {}>(WrappedComponent: ComponentType<Props>): ComponentType<$Diff<Props, { ...LocalizeContextProps }>> {
 
   const LocalizedComponent = (props: Props) => {
     return (
