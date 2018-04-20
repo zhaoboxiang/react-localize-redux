@@ -11,27 +11,29 @@ describe('locale utils', () => {
 
     it('should return element with localized string', () => {
       const translations = { test: 'Here is my test' };
-      const result = utils.getLocalizedElement('test', translations, null, defaultLanguage);
+      const result = utils.getLocalizedElement(translations['test']);
       expect(result).toBe(translations.test);
     });
 
-    it('should return element with HTML from translation rendered', () => {
+    it('should render inner HTML when renderInnerHtml = true', () => {
       const translations = { test: '<h1>Here</h1> is my <strong>test</strong>' };
-      const options = { renderInnerHtml: true };
-      const wrapper = shallow(utils.getLocalizedElement('test', translations, null, defaultLanguage, options));
+      const wrapper = shallow(utils.getLocalizedElement(translations['test'], null, true));
       
       expect(wrapper.find('span').exists()).toBe(true);
       expect(wrapper.html()).toEqual(`<span>${translations.test}</span>`);
     });
 
-    it('should not render inner HTML when this is disabled', () => {
+    it('should not render inner HTML when renderInnerHtml = false', () => {
       const translations = { test: '<h1>Here</h1> is my <strong>test</strong>' };
-      const options = { renderInnerHtml: false };
-      const result = utils.getLocalizedElement('test', translations, null, null, options);
+      const result = utils.getLocalizedElement(translations['test'], null, false);
       expect(result).toBe(translations.test);
     });
 
-    it('should return missing translation msg when showMissingTranslationMsg is true', () => {
+    it('should call onMissingTranslation with ...', () => {
+      // activeLanguage
+    });
+
+    it('should return default missing translation msg when showMissingTranslationMsg is true', () => {
       const translations = { test: 'Here is my test' };
       const key = 'test2';
       const language = { code: 'en' };
@@ -42,15 +44,8 @@ describe('locale utils', () => {
 
     it('should replace variables in translation string with data', () => {
       const translations = { test: 'Hello ${ name }' };
-      const result = utils.getLocalizedElement('test', translations, { name: 'Ted' }, defaultLanguage);
+      const result = utils.getLocalizedElement(translations['test'], { name: 'Ted' });
       expect(result).toEqual('Hello Ted');
-    });
-
-    it('should call missingTranslationCallback when set and translation is missing', () => {
-      const callback = jest.fn();
-      const options = { missingTranslationCallback: callback };
-      const result = utils.getLocalizedElement('nothinghere', {}, null, defaultLanguage, options);
-      expect(callback).toHaveBeenCalledWith('nothinghere', 'en');
     });
   });
 
@@ -135,6 +130,15 @@ describe('locale utils', () => {
         renderInnerHtml: false,
         defaultLanguage: 'en',
         translationTransform: false
+      };
+      expect(() => utils.validateOptions(options)).toThrow();
+    });
+    
+    it('should throw error if onMissingTranslation is not a function', () => {
+      const options = {
+        renderInnerHtml: false,
+        defaultLanguage: 'en',
+        onMissingTranslation: false
       };
       expect(() => utils.validateOptions(options)).toThrow();
     });

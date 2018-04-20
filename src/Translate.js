@@ -6,11 +6,11 @@ import { getTranslate, addTranslationForLanguage, getLanguages, getOptions, getA
 import { storeDidChange } from './utils';
 import { LocalizeContext, type LocalizeContextProps } from './LocalizeContext';
 import { withLocalize } from './withLocalize';
-import type { Options, TranslatePlaceholderData, TranslateFunction, Language} from './localize';
+import type { InitializeOptions, TranslatePlaceholderData, TranslateFunction, Language} from './localize';
 
 export type TranslateProps = {
   id?: string,
-  options?: Options,
+  options?: InitializeOptions,
   data?: TranslatePlaceholderData,
   children?: any|TranslateChildFunction
 };

@@ -12,8 +12,11 @@
 * add prettier
 * redo docs
 * test redux version
-* maybe add an isLocalizeInitialized prop? 
 * add default language when missing option (open issue for this)
 * clean up package.json
+* give a debug prop to LocalizeProvider to help with logging in development?
+* rename all references to react-localize-redux to react-localize
+* update all references to translation key to translation id
+* make own options type for Translate component and translate function options
 
 

@@ -38,18 +38,15 @@ class Main extends React.Component<any, any> {
             />
         </header>
         
-        {this.props.activeLanguage &&
-          <main>
-            <nav>
-              <NavLink to="/movies" activeClassName="active">Movies</NavLink>
-              <NavLink to="/books" activeClassName="active">Books</NavLink>
-            </nav>
-            
-            <Route exact path="/movies" component={Movies} />
-            <Route exact path="/books" component={Books} />
-          </main>
-
-        }
+        <main>
+          <nav>
+            <NavLink to="/movies" activeClassName="active">Movies</NavLink>
+            <NavLink to="/books" activeClassName="active">Books</NavLink>
+          </nav>
+          
+          <Route exact path="/movies" component={Movies} />
+          <Route exact path="/books" component={Books} />
+        </main>
 
         {/* <h1>
           <Translate id="title">Title</Translate>

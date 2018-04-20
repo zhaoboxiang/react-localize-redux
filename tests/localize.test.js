@@ -111,10 +111,6 @@ describe('locale module', () => {
     
   });
 
-
-
-
-
   describe('reducer: translations', () => {
     let initialState = {};
 
@@ -303,10 +299,6 @@ describe('locale module', () => {
     
   });
 
-
-
-
-
   describe('reducer: options', () => {
 
     describe('INITIALIZE', () => {
@@ -366,11 +358,28 @@ describe('locale module', () => {
 
       expect(() => options({}, action)).toThrow();
     });
+
+    it('should override default onMissingTranslation option', () => {
+      const callback = jest.fn();
+      callback.mockReturnValueOnce('Override missing!');
+
+      const action = {
+        type: INITIALIZE,
+        payload: {
+          options: {
+            onMissingTranslation: callback
+          }
+        }
+      };
+
+      const result = options({}, action);
+      const value = result.onMissingTranslation();
+
+      expect(result.onMissingTranslation).toBeDefined();
+      expect(callback).toHaveBeenCalled();
+      expect(value).toEqual('Override missing!');
+    });
   });
-
-
-
-
 
   describe('getActiveLanguage', () => {
     it('should return the active language object', () => {
@@ -410,7 +419,6 @@ describe('locale module', () => {
     });
   });
 
-
   describe('getTranslationsForActiveLanguage', () => {
     it('should return translations only for the active language', () => {
       const state = {
@@ -440,7 +448,6 @@ describe('locale module', () => {
     });
   });
 
-
   describe('getTranslationsForSpecificLanguage', () => {
     it('should return translations only for specific language', () => {
       const state = {
@@ -469,7 +476,6 @@ describe('locale module', () => {
       expect(result).toEqual({});
     });
   });
-
 
   describe('getTranslate', () => {
     let state = {};
@@ -594,7 +600,6 @@ describe('locale module', () => {
       expect(result).toEqual('hi-en');
     });
   });
-
 
   describe('translationsEqualSelector', () => {
     let languages = [];

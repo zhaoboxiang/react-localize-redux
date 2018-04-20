@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import createReactContext, { type Context } from 'create-react-context';
-import { type TranslateFunction, type Language, type MultipleLanguageTranslation, type NamedLanguage, type Options, type SingleLanguageTranslation } from './localize';
+import { type TranslateFunction, type Language, type MultipleLanguageTranslation, type NamedLanguage, type InitializeOptions, type SingleLanguageTranslation } from './localize';
 import { createSelector, type Selector } from 'reselect';
 
 import { localizeReducer, getTranslate, initialize, addTranslation, addTranslationForLanguage, setActiveLanguage, getLanguages, getActiveLanguage, getOptions, getTranslationsForActiveLanguage, type LocalizeState, type Action } from './localize';
@@ -12,13 +12,13 @@ export type LocalizeContextProps = {
   languages: Language[],
   activeLanguage: Language,
   defaultLanguage: string,
-  initialize: (languages: Array<string|NamedLanguage>, options?: Options) => void,
+  initialize: (languages: Array<string|NamedLanguage>, options?: InitializeOptions) => void,
   addTranslation: (translation: MultipleLanguageTranslation) => void,
   addTranslationForLanguage: (translation: SingleLanguageTranslation, language: string) => void,
   setActiveLanguage: (languageCode: string) => void
 };
 
-const dispatchInitialize = (dispatch: Function) => (languages: Array<string|NamedLanguage>, options?: Options) => {
+const dispatchInitialize = (dispatch: Function) => (languages: Array<string|NamedLanguage>, options?: InitializeOptions) => {
   return dispatch(initialize(languages, options));
 };
 

@@ -145,6 +145,25 @@ describe('<Translate />', () => {
     expect(wrapper.text()).toEqual('Hello FR');
   });
 
+
+
+
+
+
+
+  it('should use default onMissingTranslation option for <Translate/>', () => {
+    const Translate = getTranslateWithContext();
+    
+    const options = {
+      defaultLanguage: 'fr',
+      missingTranslationMsg: 'Nope!'
+    };
+    const wrapper = mount(
+      <Translate id="nope" options={options}>Hey</Translate>
+    );
+    expect(wrapper.text()).toEqual('Nope!');
+  });
+
   it('should override missingTranslationMsg option for <Translate/>', () => {
     const Translate = getTranslateWithContext();
     const options = {
@@ -157,6 +176,7 @@ describe('<Translate />', () => {
     expect(wrapper.text()).toEqual('Nope!');
   });
 
+  
   it('should override missingTranslationCallback option for <Translate/>', () => {
     const Translate = getTranslateWithContext();
     const callback = jest.fn();
@@ -171,6 +191,12 @@ describe('<Translate />', () => {
   });
 
   
+
+
+
+
+
+
 
   it('should accept function as child, and pass context as argument', () => {
     const Translate = getTranslateWithContext();

@@ -23,7 +23,7 @@ type TransFormFunction = (data: Object, languageCodes: string[]) => Translations
 
 type MissingTranslationCallback = (key: string, languageCode: string) => any;
 
-export interface Options {
+export interface InitializeOptions {
   renderInnerHtml?: boolean;
   defaultLanguage?: string;
   missingTranslationMsg?: string;
@@ -35,7 +35,7 @@ export interface Options {
 export interface LocalizeState {
   languages: Language[];
   translations: Translations;
-  options: Options;
+  options: InitializeOptions;
 }
 
 export interface LocalizeContextProps {
@@ -43,7 +43,7 @@ export interface LocalizeContextProps {
   languages: Language[],
   activeLanguage: Language,
   defaultLanguage: string,
-  initialize: (languages: Array<string|NamedLanguage>, options?: Options) => void,
+  initialize: (languages: Array<string|NamedLanguage>, options?: InitializeOptions) => void,
   addTranslation: (translation: MultipleLanguageTranslation) => void,
   addTranslationForLanguage: (translation: SingleLanguageTranslation, language: string) => void,
   setActiveLanguage: (languageCode: string) => void
@@ -72,7 +72,7 @@ export type TranslateChildFunction = (context: LocalizeContextProps) => any;
 
 export interface TranslateProps {
   id?: string;
-  options?: Options;
+  options?: InitializeOptions;
   data?: TranslatePlaceholderData;
   children?: any|TranslateChildFunction;
 }
@@ -84,11 +84,11 @@ interface BaseAction<T, P> {
   payload: P;
 }
 
-export type TranslateFunction = (value: TranslateValue, data?: TranslatePlaceholderData, options?: Options) => LocalizedElement|LocalizedElementMap; 
+export type TranslateFunction = (value: TranslateValue, data?: TranslatePlaceholderData, options?: InitializeOptions) => LocalizedElement|LocalizedElementMap; 
 
 type InitializePayload = {
   languages: any[], 
-  options?: Options
+  options?: InitializeOptions
 };
 
 type AddTranslationPayload = {
@@ -129,7 +129,7 @@ export type ActionLanguageCodes = Action & { languageCodes: string[] };
 
 export function localizeReducer(state: LocalizeState, action: Action): LocalizeState;
 
-export function initialize(languages: Array<string|NamedLanguage>, options?: Options): InitializeAction;
+export function initialize(languages: Array<string|NamedLanguage>, options?: InitializeOptions): InitializeAction;
 
 export function addTranslation(translation: MultipleLanguageTranslation): AddTranslationAction;
 
@@ -141,7 +141,7 @@ export function getTranslations(state: LocalizeState): Translations;
 
 export function getLanguages(state: LocalizeState): Language[];
 
-export function getOptions(state: LocalizeState): Options;
+export function getOptions(state: LocalizeState): InitializeOptions;
 
 export function getActiveLanguage(state: LocalizeState): Language;
 

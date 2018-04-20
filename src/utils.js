@@ -2,18 +2,12 @@
 import React from 'react';
 import { type Store } from 'redux';
 import { defaultTranslateOptions } from './localize';
-import type { TranslatePlaceholderData, TranslatedLanguage, Translations, Options, LocalizedElement, Language } from './localize';
+import type { TranslatePlaceholderData, TranslatedLanguage, Translations, InitializeOptions, LocalizedElement, Language } from './localize';
 
-export const getLocalizedElement = (key: string, translations: TranslatedLanguage, data: TranslatePlaceholderData, activeLanguage: Language, options: Options = defaultTranslateOptions): LocalizedElement => {
-  const onMissingTranslation = () => {
-    if (options.missingTranslationCallback) {
-      options.missingTranslationCallback(key, activeLanguage.code);
-    }
-    return templater(options.missingTranslationMsg || '', { key, code: activeLanguage.code });
-  };
-  const localizedString = translations[key] || onMissingTranslation();
+export const getLocalizedElement = (translation: string, data: TranslatePlaceholderData, renderInnerHtml: boolean, onMissingTranslation: Function): LocalizedElement => {
+  const localizedString = translation || onMissingTranslation();
   const translatedValue = templater(localizedString, data)
-  return options.renderInnerHtml && hasHtmlTags(translatedValue)
+  return renderInnerHtml === true && hasHtmlTags(translatedValue)
     ? React.createElement('span', { dangerouslySetInnerHTML: { __html: translatedValue }})
     : translatedValue;
 };
@@ -49,10 +43,15 @@ export const objectValuesToString = (data: Object): string => {
     : Object.values(data).toString();
 };
 
-export const validateOptions = (options: Options): Options => {
+export const validateOptions = (options: InitializeOptions): InitializeOptions => {
   if (options.translationTransform !== undefined && typeof options.translationTransform !== 'function') {
-    throw new Error('react-localize-redux: Invalid translationTransform function.');
+    throw new Error('react-localize-redux: an invalid translationTransform function was provided.');
   }
+
+  if (options.onMissingTranslation !== undefined && typeof options.onMissingTranslation !== 'function') {
+    throw new Error('react-localize-redux: an invalid onMissingTranslation function was provided.');
+  }
+
   return options;
 };
 

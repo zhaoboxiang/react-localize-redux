@@ -27,21 +27,31 @@ export type Translations = {
 
 type TransFormFunction = (data: Object, languageCodes: string[]) => Translations;
 
-type MissingTranslationCallback = (key: string, languageCode: string) => any;
-
-export type Options = {
+export type InitializeOptions = {
   renderInnerHtml?: boolean, 
+  onMissingTranslation?: Function,
   defaultLanguage?: string,  
-  missingTranslationMsg?: string, 
-  missingTranslationCallback?: MissingTranslationCallback, 
-  translationTransform?: TransFormFunction, 
+  translationTransform?: TransFormFunction
+
+  // missingTranslationMsg?: string, 
+  // missingTranslationCallback?: MissingTranslationCallback, 
+
+  
+
+  
+};
+
+export type TranslateOptions = {
+  language?: string,
+  renderInnerHtml?: boolean,
+  onMissingTranslation?: Function,
   ignoreTranslateChildren?: boolean
 };
 
 export type LocalizeState = {
   +languages: Language[],
   +translations: Translations,
-  +options: Options
+  +options: InitializeOptions
 };
 
 export type TranslatedLanguage = {
@@ -60,7 +70,7 @@ export type TranslatePlaceholderData = {
 
 export type TranslateValue = string|string[];
 
-export type TranslateFunction = (value: TranslateValue, data?: TranslatePlaceholderData, options?: Options) => LocalizedElement|LocalizedElementMap; 
+export type TranslateFunction = (value: TranslateValue, data?: TranslatePlaceholderData, options?: TranslateOptions) => LocalizedElement|LocalizedElementMap; 
 
 export type SingleLanguageTranslation = {
   [key: string]: Object | string
@@ -72,7 +82,7 @@ export type MultipleLanguageTranslation = {
 
 type InitializePayload = {
   languages: Array<string|NamedLanguage>,
-  options?: Options
+  options?: InitializeOptions
 };
 
 type AddTranslationPayload = {
@@ -188,7 +198,7 @@ export function translations(state: Translations = {}, action: ActionDetailed): 
   }
 }
 
-export function options(state: Options = defaultTranslateOptions, action: Action): Options {
+export function options(state: InitializeOptions = defaultTranslateOptions, action: Action): InitializeOptions {
   switch(action.type) {
     case INITIALIZE:
       const options = action.payload.options || {};
@@ -201,10 +211,11 @@ export function options(state: Options = defaultTranslateOptions, action: Action
   }
 };
 
-export const defaultTranslateOptions: Options = {
+export const defaultTranslateOptions: InitializeOptions = {
   renderInnerHtml: false,
-  missingTranslationMsg: 'Missing translation key ${ key } for language ${ code }',
-  ignoreTranslateChildren: false
+  // missingTranslationMsg: 'Missing translation key ${ key } for language ${ code }',
+  ignoreTranslateChildren: false,
+  onMissingTranslation: () => 'Hello!'
 };
 
 const initialState: LocalizeState = {
@@ -226,7 +237,7 @@ export const localizeReducer = (state: LocalizeState = initialState, action: Act
 /**
  * ACTION CREATORS
  */
-export const initialize = (languages: Array<string|NamedLanguage>, options?: Options = defaultTranslateOptions): InitializeAction => ({
+export const initialize = (languages: Array<string|NamedLanguage>, options?: InitializeOptions = defaultTranslateOptions): InitializeAction => ({
   type: INITIALIZE,
   payload: { languages, options }
 });
@@ -256,7 +267,7 @@ export const getTranslations = (state: LocalizeState): Translations => {
 
 export const getLanguages = (state: LocalizeState): Language[] => state.languages;
 
-export const getOptions = (state: LocalizeState): Options => state.options;
+export const getOptions = (state: LocalizeState): InitializeOptions => state.options;
 
 export const getActiveLanguage = (state: LocalizeState): Language => {
   const languages = getLanguages(state);
@@ -311,32 +322,40 @@ export const getTranslate: Selector<LocalizeState, void, TranslateFunction> = cr
   getTranslationsForSpecificLanguage,
   getActiveLanguage,
   getOptions,
-  (translationsForActiveLanguage, getTranslationsForLanguage, activeLanguage, options) => {
-    return (value, data = {}, optionsOverride = {}) => {
-      const {defaultLanguage, ...rest} = optionsOverride;
-      const translateOptions: Options = {...options, ...rest};
-      const translations = defaultLanguage !== undefined 
-        ? getTranslationsForLanguage({code: defaultLanguage, active: false})
+  (translationsForActiveLanguage, getTranslationsForLanguage, activeLanguage, initializeOptions) => {
+    return (value, data = {}, translateOptions = {}) => {
+      const {defaultLanguage, translationTransform, ...defaultOptions} = initializeOptions;
+      const overrideLanguage = translateOptions.language;
+
+      const translations = overrideLanguage !== undefined 
+        ? getTranslationsForLanguage({code: overrideLanguage, active: false})
         : translationsForActiveLanguage;
+      
+      const onMissingTranslation = (translationId: string) => {
+          // const translationForDefaultLanguage = getTranslationsForLanguage({code: mergedOptions.defaultLanguage, active: false})
+          
+          // return mergedOptions.onMissingTranslation({
+          //   translationId,
+          //   activeLanguage,
+          //   translationForDefaultLanguage
+          // });
+      };
+      
+      const mergedOptions = {...defaultOptions, ...translateOptions};
+      const {renderInnerHtml} = mergedOptions;
+
       if (typeof value === 'string') {
-        return getLocalizedElement(value, translations, data, activeLanguage, translateOptions);
+        return getLocalizedElement(translations[value], data, renderInnerHtml, onMissingTranslation);
       } else if (Array.isArray(value)) {
         return value.reduce((prev, cur) => {
           return {
             ...prev,
-            [cur]: getLocalizedElement(cur, translations, data, activeLanguage, translateOptions)
+            [cur]: getLocalizedElement(translations[cur], data, renderInnerHtml, onMissingTranslation)
           };
         }, {});
       } else {
         throw new Error('react-localize-redux: Invalid key passed to getTranslate.');
       }
     }
-  }
-);
-
-export const getTranslateComponent = createSelector(
-  getTranslate,
-  (translate) => (props) => {
-    return translate(props.id, props.data, props.options);
   }
 );

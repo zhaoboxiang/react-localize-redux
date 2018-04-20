@@ -15,7 +15,7 @@ class Movies extends React.Component<any, any> {
     this.addTranslationsForActiveLanguage();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const hasActiveLanguageChanged = prevProps.activeLanguage !== this.props.activeLanguage;
 
     if (hasActiveLanguageChanged) {
@@ -25,6 +25,10 @@ class Movies extends React.Component<any, any> {
 
   addTranslationsForActiveLanguage() {
     const {activeLanguage} = this.props;
+
+    if (!activeLanguage) {
+      return;
+    }
     
     import(`../translations/${activeLanguage.code}.movies.json`) 
       .then(translations => {
