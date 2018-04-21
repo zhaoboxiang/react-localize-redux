@@ -20,6 +20,7 @@ describe('<Translate />', () => {
     translations: {
       hello: ['Hello', 'Hello FR'],
       bye: ['Goodbye', 'Goodbye FR'],
+      missing: ['Missing'],
       html: ['Hey <a href="http://google.com">google</a>', ''],
       multiline: [null, ''],
       placeholder: ['Hey ${name}!', '']
@@ -101,14 +102,8 @@ describe('<Translate />', () => {
   });
 
   it('should add <Translate>\'s children to translations under options.defaultLanguage for id', () => {
-    const Translate = getTranslateWithContext({ 
-      ...initialState, 
-      options: {
-        ...initialState.options,
-        defaultLanguage: 'fr'
-      }
-    });
-    const wrapper = mount(<Translate id="hello">Hey</Translate>);
+    const Translate = getTranslateWithContext();
+    const wrapper = mount(<Translate id="hello" options={{language: 'fr'}}>Hey</Translate>);
     
     expect(defaultContext.addTranslationForLanguage).toHaveBeenLastCalledWith(
       {"hello": "Hey"}, 
@@ -137,66 +132,50 @@ describe('<Translate />', () => {
     expect(wrapper.text()).toEqual('Hey Ted!');
   });
 
-  it('should override defaultLanguage option for <Translate/>', () => {
+  it('should override avtiveLanguage when language prop provided for <Translate/>', () => {
     const Translate = getTranslateWithContext();
     const wrapper = mount(
-      <Translate id="hello" options={{defaultLanguage: 'fr'}}>Hey</Translate>
+      <Translate id="hello" options={{language: 'fr'}}>Hey</Translate>
     );
     expect(wrapper.text()).toEqual('Hello FR');
   });
 
-
-
-
-
-
-
   it('should use default onMissingTranslation option for <Translate/>', () => {
     const Translate = getTranslateWithContext();
+    const wrapper = mount(
+      <Translate id="nope">Hey</Translate>
+    );
+    expect(wrapper.text()).toEqual('Missing translationId: nope for language: en');
+  });
+
+  it('should override onMissingTranslation option for <Translate/>', () => {
+    const Translate = getTranslateWithContext();
+    const onMissingTranslation = ({translationId, languageCode}) => '${translationId} - ${languageCode}';
+    const wrapper = mount(
+      <Translate id="nope" options={{onMissingTranslation}}>Hey</Translate>
+    );
+    expect(wrapper.text()).toEqual('nope - en');
+  });
+
+  it('should override onMissingTranslation and provide defaultTranslation for <Translate/>', () => {
+    const Translate = getTranslateWithContext({
+      ...initialState,
+      languages: [
+        { code: 'en', active: false },
+        { code: 'fr', active: true }
+      ],
+      options: {
+        ...initialState.options,
+        defaultLanguage: 'en'
+      }
+    });
     
-    const options = {
-      defaultLanguage: 'fr',
-      missingTranslationMsg: 'Nope!'
-    };
+    const onMissingTranslation = ({defaultTranslation}) => defaultTranslation;
     const wrapper = mount(
-      <Translate id="nope" options={options}>Hey</Translate>
+      <Translate id="missing" options={{onMissingTranslation}}>Hey</Translate>
     );
-    expect(wrapper.text()).toEqual('Nope!');
+    expect(wrapper.text()).toEqual('Missing');
   });
-
-  it('should override missingTranslationMsg option for <Translate/>', () => {
-    const Translate = getTranslateWithContext();
-    const options = {
-      defaultLanguage: 'fr',
-      missingTranslationMsg: 'Nope!'
-    };
-    const wrapper = mount(
-      <Translate id="nope" options={options}>Hey</Translate>
-    );
-    expect(wrapper.text()).toEqual('Nope!');
-  });
-
-  
-  it('should override missingTranslationCallback option for <Translate/>', () => {
-    const Translate = getTranslateWithContext();
-    const callback = jest.fn();
-    const options = {
-      defaultLanguage: 'fr',
-      missingTranslationCallback: callback
-    };
-    const wrapper = mount(
-      <Translate id="nope" options={options}>Hey</Translate>
-    );
-    expect(callback).toHaveBeenCalled();
-  });
-
-  
-
-
-
-
-
-
 
   it('should accept function as child, and pass context as argument', () => {
     const Translate = getTranslateWithContext();

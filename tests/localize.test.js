@@ -6,7 +6,7 @@ import { INITIALIZE, SET_ACTIVE_LANGUAGE, ADD_TRANSLATION, ADD_TRANSLATION_FOR_L
 
 Enzyme.configure({ adapter: new Adapter() });
 
-describe('locale module', () => {
+describe('localize', () => {
 
   const transformFunction = (data, codes) => {``
     return Object.keys(data).reduce((prev, cur, index) => {
@@ -457,7 +457,7 @@ describe('locale module', () => {
           bye: ['bye-en', 'bye-fr']
         }
       };
-      const result = getTranslationsForSpecificLanguage(state)({code: 'en'});
+      const result = getTranslationsForSpecificLanguage(state)('en');
       expect(result).toEqual({
         hi: 'hi-en',
         bye: 'bye-en'
@@ -570,33 +570,23 @@ describe('locale module', () => {
       });
     });
 
-    it('should retrun custom missingTranslationMsg when missing translation and showMissingTranslationMsg = true', () => {
-      state.options.showMissingTranslationMsg = true;
-      state.options.missingTranslationMsg = 'Hey you\'re missing this translation: ${ key }:${ code }';
+    it('should return value from default onMissingTranslation option', () => {
+      state.options.onMissingTranslation = defaultTranslateOptions.onMissingTranslation;
       const translate = getTranslate(state);
       const result = translate('nothinghere');
-      expect(result).toEqual('Hey you\'re missing this translation: nothinghere:fr');
+      expect(result).toEqual('Missing translationId: nothinghere for language: fr');
     });
 
-    it('should override custom missingTranslationMsg when passed to getTranslate', () => {
-      state.options.showMissingTranslationMsg = true;
-      const missingTranslationMsg = 'This should be the new missing translation msg!';
-      const translate = getTranslate(state);
-      const result = translate('nothinghere', null, { missingTranslationMsg });
-      expect(result).toEqual(missingTranslationMsg);
-    });
-
-    it('should call missingTranslationCallback if set and translation is missing', () => {
-      const callback = jest.fn();
-      state.options.missingTranslationCallback = callback;
+    it('should return value from onMissingTranslation option override', () => {
+      state.options.onMissingTranslation = ({translationId, languageCode}) => '${translationId} - ${languageCode}';
       const translate = getTranslate(state);
       const result = translate('nothinghere');
-      expect(callback).toHaveBeenCalledWith('nothinghere', 'fr');
+      expect(result).toEqual('nothinghere - fr');
     });
 
-    it('should use defaultLanguage option instead of activeLanguage for translations', () => {
+    it('should use language option instead of activeLanguage for translations', () => {
       const translate = getTranslate(state);
-      const result = translate('hi', null, {defaultLanguage: 'en'});
+      const result = translate('hi', null, {language: 'en'});
       expect(result).toEqual('hi-en');
     });
   });

@@ -1,6 +1,6 @@
 # Breaking Changes
 * renderInnerHtml option will be set to false by default instead of true
-* showMissingTranslationMsg option has been removed use missingTranslationMsg option instead
+* showMissingTranslationMsg, missingTranslationMsg, missingTranslationCallback removed replaced with onMissingTranslation
 * setTranslations action has been removed
 * localize HOC has been removed
 * change default slice name from 'locale' to 'localize'

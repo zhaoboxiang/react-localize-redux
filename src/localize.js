@@ -29,22 +29,15 @@ type TransFormFunction = (data: Object, languageCodes: string[]) => Translations
 
 export type InitializeOptions = {
   renderInnerHtml?: boolean, 
-  onMissingTranslation?: Function,
+  onMissingTranslation?: onMissingTranslationFunction,
   defaultLanguage?: string,  
   translationTransform?: TransFormFunction
-
-  // missingTranslationMsg?: string, 
-  // missingTranslationCallback?: MissingTranslationCallback, 
-
-  
-
-  
 };
 
 export type TranslateOptions = {
   language?: string,
   renderInnerHtml?: boolean,
-  onMissingTranslation?: Function,
+  onMissingTranslation?: onMissingTranslationFunction,
   ignoreTranslateChildren?: boolean
 };
 
@@ -79,6 +72,8 @@ export type SingleLanguageTranslation = {
 export type MultipleLanguageTranslation = {
   [key: string]: Object | string[]
 };
+
+export type onMissingTranslationFunction = ({translationId: string, languageCode: string, defaultTranslation: string}) => string;
 
 type InitializePayload = {
   languages: Array<string|NamedLanguage>,
@@ -213,9 +208,8 @@ export function options(state: InitializeOptions = defaultTranslateOptions, acti
 
 export const defaultTranslateOptions: InitializeOptions = {
   renderInnerHtml: false,
-  // missingTranslationMsg: 'Missing translation key ${ key } for language ${ code }',
   ignoreTranslateChildren: false,
-  onMissingTranslation: () => 'Hello!'
+  onMissingTranslation: ({translationId, languageCode}) => 'Missing translationId: ${ translationId } for language: ${ languageCode }'
 };
 
 const initialState: LocalizeState = {
@@ -313,7 +307,7 @@ export const getTranslationsForSpecificLanguage = translationsEqualSelector(
   getLanguages,
   getTranslations,
   (languages, translations) => defaultMemoize(
-    (languageCode) => getTranslationsForLanguage(languageCode, languages, translations)
+    (languageCode: string) => getTranslationsForLanguage({code: languageCode, active: false}, languages, translations)
   )
 );
 
@@ -328,29 +322,38 @@ export const getTranslate: Selector<LocalizeState, void, TranslateFunction> = cr
       const overrideLanguage = translateOptions.language;
 
       const translations = overrideLanguage !== undefined 
-        ? getTranslationsForLanguage({code: overrideLanguage, active: false})
+        ? getTranslationsForLanguage(overrideLanguage)
         : translationsForActiveLanguage;
       
-      const onMissingTranslation = (translationId: string) => {
-          // const translationForDefaultLanguage = getTranslationsForLanguage({code: mergedOptions.defaultLanguage, active: false})
-          
-          // return mergedOptions.onMissingTranslation({
-          //   translationId,
-          //   activeLanguage,
-          //   translationForDefaultLanguage
-          // });
+      const defaultTranslations = activeLanguage && activeLanguage.code === initializeOptions.defaultLanguage
+        ? translationsForActiveLanguage
+        : initializeOptions.defaultLanguage !== undefined
+          ? getTranslationsForLanguage(initializeOptions.defaultLanguage)
+          : {};
+      
+      const languageCode = overrideLanguage !== undefined 
+        ? overrideLanguage
+        : activeLanguage && activeLanguage.code;
+      
+      const onMissingTranslation = (translationId: string) => {          
+        return mergedOptions.onMissingTranslation({
+          translationId,
+          languageCode,
+          defaultTranslation: defaultTranslations[translationId]
+        });
       };
       
-      const mergedOptions = {...defaultOptions, ...translateOptions};
-      const {renderInnerHtml} = mergedOptions;
+      const mergedOptions = { ...defaultOptions, ...translateOptions };
+      const { renderInnerHtml } = mergedOptions;
+      const sharedParams = { translations, data, languageCode, renderInnerHtml, onMissingTranslation };
 
       if (typeof value === 'string') {
-        return getLocalizedElement(translations[value], data, renderInnerHtml, onMissingTranslation);
+        return getLocalizedElement({ translationId: value, ...sharedParams });
       } else if (Array.isArray(value)) {
         return value.reduce((prev, cur) => {
           return {
             ...prev,
-            [cur]: getLocalizedElement(translations[cur], data, renderInnerHtml, onMissingTranslation)
+            [cur]: getLocalizedElement({ translationId: cur, ...sharedParams })
           };
         }, {});
       } else {

@@ -2,11 +2,25 @@
 import React from 'react';
 import { type Store } from 'redux';
 import { defaultTranslateOptions } from './localize';
-import type { TranslatePlaceholderData, TranslatedLanguage, Translations, InitializeOptions, LocalizedElement, Language } from './localize';
+import type { TranslatePlaceholderData, TranslatedLanguage, Translations, InitializeOptions, LocalizedElement, Language, onMissingTranslationFunction } from './localize';
 
-export const getLocalizedElement = (translation: string, data: TranslatePlaceholderData, renderInnerHtml: boolean, onMissingTranslation: Function): LocalizedElement => {
-  const localizedString = translation || onMissingTranslation();
-  const translatedValue = templater(localizedString, data)
+type LocalizedElementOptions = {
+  translationId: string,
+  translations: TranslatedLanguage,
+  data: TranslatePlaceholderData,
+  languageCode: string,
+  renderInnerHtml: boolean,
+  onMissingTranslation: (translationId: string) => string
+};
+
+export const getLocalizedElement = (options: LocalizedElementOptions): LocalizedElement => {
+  const { translationId, translations, data, renderInnerHtml, onMissingTranslation } = options;
+  const localizedString = translations[translationId] || onMissingTranslation(translationId);
+  const placeholderData = translations[translationId] 
+    ? data 
+    : { translationId: options.translationId, languageCode: options.languageCode};
+  const translatedValue = templater(localizedString, placeholderData);
+
   return renderInnerHtml === true && hasHtmlTags(translatedValue)
     ? React.createElement('span', { dangerouslySetInnerHTML: { __html: translatedValue }})
     : translatedValue;

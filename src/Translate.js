@@ -6,11 +6,11 @@ import { getTranslate, addTranslationForLanguage, getLanguages, getOptions, getA
 import { storeDidChange } from './utils';
 import { LocalizeContext, type LocalizeContextProps } from './LocalizeContext';
 import { withLocalize } from './withLocalize';
-import type { InitializeOptions, TranslatePlaceholderData, TranslateFunction, Language} from './localize';
+import type { TranslateOptions, TranslatePlaceholderData, TranslateFunction, Language} from './localize';
 
 export type TranslateProps = {
   id?: string,
-  options?: InitializeOptions,
+  options?: TranslateOptions,
   data?: TranslatePlaceholderData,
   children?: any|TranslateChildFunction
 };
@@ -43,7 +43,7 @@ export class Translate extends React.Component<TranslateProps, TranslateState> {
     }
     
     const { id, children, options = {} } = this.props;
-    const defaultLanguage = options.defaultLanguage || context.defaultLanguage;
+    const defaultLanguage = options.language || context.defaultLanguage;
 
     if (children === undefined || typeof children === 'function') {
       return;
@@ -63,7 +63,7 @@ export class Translate extends React.Component<TranslateProps, TranslateState> {
     const { id = '', options, data } = this.props;
 
     this.addDefaultTranslation(context);
-
+    
     return typeof this.props.children === 'function'
       ? this.props.children(context)
       : context.translate && (context.translate(id, data, options): any);

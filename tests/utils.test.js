@@ -11,13 +11,20 @@ describe('locale utils', () => {
 
     it('should return element with localized string', () => {
       const translations = { test: 'Here is my test' };
-      const result = utils.getLocalizedElement(translations['test']);
+      const result = utils.getLocalizedElement({
+        translationId: 'test',
+        translations
+      });
       expect(result).toBe(translations.test);
     });
 
     it('should render inner HTML when renderInnerHtml = true', () => {
       const translations = { test: '<h1>Here</h1> is my <strong>test</strong>' };
-      const wrapper = shallow(utils.getLocalizedElement(translations['test'], null, true));
+      const wrapper = shallow(utils.getLocalizedElement({
+        translationId: 'test',
+        translations,
+        renderInnerHtml: true
+      }));
       
       expect(wrapper.find('span').exists()).toBe(true);
       expect(wrapper.html()).toEqual(`<span>${translations.test}</span>`);
@@ -25,26 +32,33 @@ describe('locale utils', () => {
 
     it('should not render inner HTML when renderInnerHtml = false', () => {
       const translations = { test: '<h1>Here</h1> is my <strong>test</strong>' };
-      const result = utils.getLocalizedElement(translations['test'], null, false);
+      const result = utils.getLocalizedElement({
+        translationId: 'test',
+        translations, 
+        renderInnerHtml: false
+      });
       expect(result).toBe(translations.test);
     });
 
-    it('should call onMissingTranslation with ...', () => {
-      // activeLanguage
-    });
-
-    it('should return default missing translation msg when showMissingTranslationMsg is true', () => {
-      const translations = { test: 'Here is my test' };
-      const key = 'test2';
-      const language = { code: 'en' };
-      const options = { showMissingTranslationMsg: true, missingTranslationMsg: 'My missing message' };
-      const result = utils.getLocalizedElement(key, translations, null, { code: 'en' }, options);
+    it('should return result of onMissingTranslation when translation = undefined', () => {
+      const onMissingTranslation = () => 'My missing message';
+      const result = utils.getLocalizedElement({
+        translationId: 'nothing',
+        translations: {},
+        renderInnerHtml: true, 
+        onMissingTranslation
+      });
       expect(result).toEqual('My missing message');
     });
 
     it('should replace variables in translation string with data', () => {
       const translations = { test: 'Hello ${ name }' };
-      const result = utils.getLocalizedElement(translations['test'], { name: 'Ted' });
+      const result = utils.getLocalizedElement({
+        translationId: 'test',
+        translations,
+        renderInnerHtml: true,
+        data: { name: 'Ted' }
+      });
       expect(result).toEqual('Hello Ted');
     });
   });
